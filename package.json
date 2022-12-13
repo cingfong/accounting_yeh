@@ -9,6 +9,7 @@
   },
   "dependencies": {
     "bootstrap": "^5.2.2",
+    "bootstrap-vue": "^2.23.1",
     "core-js": "^3.6.5",
     "vue": "^2.6.11"
   },

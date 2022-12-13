@@ -1,28 +1,62 @@
 <template>
   <div id="app">
-    <img alt="Vue logo" src="./assets/logo.png">
-    <HelloWorld msg="Welcome to Your Vue.js App"/>
+    <div>
+      <b-form>
+        <b-form-input
+          v-for="inputItem in inputList"
+          :key="inputItem.model"
+          id="input-1"
+          v-model="formData[inputItem.model]"
+          type="text"
+          :placeholder="inputItem.text"
+          :disabled="inputItem.disabled"
+          required
+        />
+        <b-button @click="onSubmit" variant="primary">下一項</b-button>
+      </b-form>
+      {{ formList }}
+    </div>
   </div>
 </template>
 
 <script>
-import HelloWorld from './components/HelloWorld.vue'
-
 export default {
-  name: 'App',
-  components: {
-    HelloWorld
-  }
-}
+  // name: "App",
+  data() {
+    return {
+      inputList: [
+        { text: "輸入項目", model: "name" },
+        { text: "輸入規格", model: "criterion" },
+        { text: "輸入數量", model: "number" },
+        { text: "輸入單位", model: "unit" },
+        { text: "輸入單價", model: "price" },
+        { text: "輸入小計", model: "total", disabled: true },
+        { text: "輸入備註", model: "remark" },
+      ],
+      formData: {
+        name: "",
+        criterion: "",
+        number: "",
+        unit: "",
+        price: "",
+        total: "",
+        remark: "",
+      },
+      formList: [],
+    };
+  },
+  computed: {
+    itemTotal() {
+      return this.formData.price * this.formData.number;
+    },
+  },
+  methods: {
+    onSubmit() {
+      this.formList.push({ ...this.formData });
+      Object.keys(this.formData).forEach((key) => (this.formData[key] = ""));
+    },
+  },
+};
 </script>
 
-<style>
-#app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-  margin-top: 60px;
-}
-</style>
+<style></style>
