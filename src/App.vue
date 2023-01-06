@@ -84,7 +84,6 @@ export default {
         { text: "輸入數量", model: "number" },
         { text: "輸入單位", model: "unit" },
         { text: "輸入單價", model: "price" },
-        // { text: "輸入小計", model: "total", disabled: true },
         { text: "輸入備註", model: "remark" },
       ],
       formTitle: "",
@@ -94,7 +93,6 @@ export default {
         number: "",
         unit: "",
         price: "",
-        // total: "",
         remark: "",
       },
       formList: [],
@@ -125,8 +123,6 @@ export default {
 .card-body {
   width: 350px;
 }
-/* .form-title-input {
-} */
 .form-wrap {
   width: 350px;
 }
