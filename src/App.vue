@@ -17,6 +17,7 @@
       </b-card>
     </div>
     <div class="form-wrap">
+      <label for="inputPassword5" class="form-label px-2">請款單</label>
       <b-form>
         <b-form-input
           v-for="inputItem in inputList"
@@ -29,11 +30,45 @@
           :disabled="inputItem.disabled"
           required
         />
-        <b-button @click="onSubmit" variant="primary" class="mt-2"
-          >下一項</b-button
-        >
+        <b-form-input
+          id="input-1"
+          v-model="itemTotal"
+          type="text"
+          placeholder="小計"
+          disabled
+          required
+        />
+        <b-button @click="onSubmit" variant="primary">下一項</b-button>
       </b-form>
-      {{ formList }}
+    </div>
+    <div>
+      <table class="table">
+        <thead>
+          <tr>
+            <th scope="col">施工項目</th>
+            <th scope="col">規格</th>
+            <th scope="col">數量</th>
+            <th scope="col">單位</th>
+            <th scope="col">單價</th>
+            <th scope="col">小計</th>
+            <th scope="col">備註</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="(formItem, index) in formList" :key="index">
+            <th scope="row" v-for="(item, key) in formItem" :key="`item${key}`">
+              <button
+                v-if="key === 'name'"
+                type="button"
+                class="btn btn-warning"
+              >
+                編輯
+              </button>
+              {{ item }}
+            </th>
+          </tr>
+        </tbody>
+      </table>
     </div>
   </div>
 </template>
@@ -49,7 +84,7 @@ export default {
         { text: "輸入數量", model: "number" },
         { text: "輸入單位", model: "unit" },
         { text: "輸入單價", model: "price" },
-        { text: "輸入小計", model: "total", disabled: true },
+        // { text: "輸入小計", model: "total", disabled: true },
         { text: "輸入備註", model: "remark" },
       ],
       formTitle: "",
@@ -59,7 +94,7 @@ export default {
         number: "",
         unit: "",
         price: "",
-        total: "",
+        // total: "",
         remark: "",
       },
       formList: [],
@@ -90,8 +125,8 @@ export default {
 .card-body {
   width: 350px;
 }
-.form-title-input {
-}
+/* .form-title-input {
+} */
 .form-wrap {
   width: 350px;
 }
