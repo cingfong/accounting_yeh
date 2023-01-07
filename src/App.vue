@@ -1,5 +1,5 @@
 <template>
-  <div id="app" class="w-full d-flex justify-content-center">
+  <div id="app" class="w-full d-flex align-items-center flex-column">
     <div
       v-if="titleFormShow"
       class="form-title-input-wrap d-flex justify-content-center align-items-center"
@@ -17,7 +17,12 @@
       </b-card>
     </div>
     <div class="form-wrap">
-      <label for="inputPassword5" class="form-label px-2">請款單</label>
+      <label
+        class="form-label px-2 d-flex justify-content-center align-items-center"
+      >
+        <b-icon icon="pencil-square" @click="titleFormShow = true" />
+        <span style="padding-left: 10px">{{ formTitle }}請款單</span>
+      </label>
       <b-form>
         <b-form-input
           v-for="inputItem in inputList"
@@ -30,19 +35,20 @@
           :disabled="inputItem.disabled"
           required
         />
-        <b-form-input
-          id="input-1"
-          v-model="itemTotal"
-          type="text"
-          placeholder="小計"
-          disabled
-          required
-        />
-        <b-button @click="onSubmit" variant="primary">下一項</b-button>
+        <p class="mt-2">小計 : {{ itemTotal }}</p>
+        <div class="d-flex justify-content-between">
+          <b-button @click="addFormList" variant="primary">下一項</b-button>
+          <b-button
+            v-show="typeof formEditIndex !== 'string'"
+            @click="deleteFormList"
+            variant="danger"
+            >刪除</b-button
+          >
+        </div>
       </b-form>
     </div>
-    <div>
-      <table class="table">
+    <div class="table-wrap mt-4">
+      <table class="table table-DOM">
         <thead>
           <tr>
             <th scope="col">施工項目</th>
@@ -57,19 +63,18 @@
         <tbody>
           <tr v-for="(formItem, index) in formList" :key="index">
             <th scope="row" v-for="(item, key) in formItem" :key="`item${key}`">
-              <button
+              <b-icon
                 v-if="key === 'name'"
-                type="button"
-                class="btn btn-warning"
-              >
-                編輯
-              </button>
+                icon="pencil-square"
+                @click="formEdit(index)"
+              />
               {{ item }}
             </th>
           </tr>
         </tbody>
       </table>
     </div>
+    <b-button class="mt-5" variant="success">確定</b-button>
   </div>
 </template>
 
@@ -77,7 +82,7 @@
 export default {
   data() {
     return {
-      titleFormShow: true,
+      titleFormShow: false,
       inputList: [
         { text: "輸入項目", model: "name" },
         { text: "輸入規格", model: "criterion" },
@@ -93,9 +98,11 @@ export default {
         number: "",
         unit: "",
         price: "",
+        itemTotal: "",
         remark: "",
       },
       formList: [],
+      formEditIndex: "",
     };
   },
   computed: {
@@ -105,9 +112,30 @@ export default {
   },
   mounted() {},
   methods: {
-    onSubmit() {
-      this.formList.push({ ...this.formData });
+    formEdit(index) {
+      const vm = this;
+      vm.formEditIndex = index;
+      vm.formData = vm.formList[index];
+    },
+    addFormList() {
+      const vm = this;
+      vm.formData.itemTotal = vm.itemTotal;
+      // 新增情況
+      if (typeof vm.formEditIndex === "string") {
+        vm.formList.push({ ...vm.formData });
+      } else {
+        vm.formList[vm.formEditIndex] = { ...vm.formData };
+        vm.formEditIndex = "";
+      }
+      vm.formDataRemove();
+    },
+    formDataRemove() {
       Object.keys(this.formData).forEach((key) => (this.formData[key] = ""));
+    },
+    deleteFormList() {
+      this.formList.splice(this.formEditIndex, 1);
+      this.formEditIndex = "";
+      this.formDataRemove();
     },
   },
 };
@@ -125,5 +153,24 @@ export default {
 }
 .form-wrap {
   width: 350px;
+}
+.table-wrap {
+  width: 350px;
+  min-height: 150px;
+  overflow: auto;
+}
+.table-wrap::-webkit-scrollbar {
+  height: 3px;
+}
+.table-wrap::-webkit-scrollbar-track-piece {
+  background-color: #eee;
+}
+
+.table-wrap::-webkit-scrollbar-thumb {
+  background-color: gray;
+}
+
+.table-DOM {
+  width: 750px !important;
 }
 </style>
