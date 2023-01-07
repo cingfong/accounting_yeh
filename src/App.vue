@@ -55,51 +55,62 @@
         </div>
       </b-form>
     </div>
-    <div class="table-wrap mt-4">
-      <table class="table table-DOM">
-        <thead>
-          <tr>
-            <th scope="col">施工項目</th>
-            <th scope="col">規格</th>
-            <th scope="col">數量</th>
-            <th scope="col">單位</th>
-            <th scope="col">單價</th>
-            <th scope="col">小計</th>
-            <th scope="col">備註</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="(formItem, index) in formList" :key="index">
-            <td scope="row" v-for="(item, key) in formItem" :key="`item${key}`">
-              <b-icon
-                v-if="key === 'name'"
-                icon="pencil-square"
-                @click="formEdit(index)"
-              />
-              {{ item }}
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-    <div class="form-total-wrap d-flex align-items-end flex-column">
-      <p class="mb-0 mt-2">
-        合計 : <span>{{ listTotal }}</span>
-      </p>
-      <p class="mb-0 mt-2">
-        稅金 : <span>{{ listTax }}</span>
-      </p>
-      <p class="mb-0 mt-2">
-        總計 : <span>{{ listTaxIncluded }}</span>
-      </p>
+    <div>
+      <div class="table-wrap mt-4">
+        <table class="table table-DOM" id="pdf-wrap">
+          <thead>
+            <tr>
+              <th scope="col">施工項目</th>
+              <th scope="col">規格</th>
+              <th scope="col">數量</th>
+              <th scope="col">單位</th>
+              <th scope="col">單價</th>
+              <th scope="col">小計</th>
+              <th scope="col">備註</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="(formItem, index) in formList" :key="index">
+              <td
+                scope="row"
+                v-for="(item, key) in formItem"
+                :key="`item${key}`"
+              >
+                <b-icon
+                  v-if="key === 'name'"
+                  icon="pencil-square"
+                  @click="formEdit(index)"
+                />
+                {{ item }}
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="form-total-wrap d-flex align-items-end flex-column">
+        <p class="mb-0 mt-2">
+          合計 : <span>{{ listTotal }}</span>
+        </p>
+        <p class="mb-0 mt-2">
+          稅金 : <span>{{ listTax }}</span>
+        </p>
+        <p class="mb-0 mt-2">
+          總計 : <span>{{ listTaxIncluded }}</span>
+        </p>
+      </div>
     </div>
     <b-button class="mt-5" @click="createPDF" variant="success">
       生成pdf
     </b-button>
   </div>
 </template>
-
 <script>
+// const { jsPDF } = require("jspdf");
+// const { autoTable } = require("jspdf-autotable");
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
+import "./ch-normal.js";
+// import "jspdf-autotable";
 export default {
   data() {
     return {
@@ -176,7 +187,18 @@ export default {
     createPDF() {
       const vm = this;
       if (!vm.formList.length) return;
-      console.log("a");
+      const doc = new jsPDF("p");
+      doc.setFont("ch");
+      doc.setLineWidth(2);
+      let width = doc.internal.pageSize.getWidth();
+      doc.text("業績明細報表", width / 2, 10, { align: "center" });
+      doc.text("日期: ", width - 5, 10, { align: "right" });
+      autoTable(doc, {
+        html: "#pdf-wrap",
+        styles: { font: "ch" },
+      });
+      // doc.save(`${vm.formTitle}請款單.pdf`);
+      window.open(doc.output("bloburl"));
     },
   },
 };
