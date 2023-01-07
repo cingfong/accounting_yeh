@@ -16,21 +16,21 @@
         </b-button>
       </b-card>
     </div>
-    <div class="form-wrap">
-      <label
-        class="form-label px-2 d-flex justify-content-center align-items-center"
-      >
-        <b-icon icon="pencil-square" @click="titleFormShow = true" />
-        <span style="padding-left: 10px">{{ formTitle }}請款單</span>
-      </label>
+    <div class="form-wrap mt-2">
       <b-form>
+        <caption
+          class="form-label px-2 d-flex justify-content-center align-items-center"
+        >
+          <b-icon icon="pencil-square" @click="titleFormShow = true" />
+          <span style="padding-left: 10px">{{ formTitle }}請款單</span>
+        </caption>
         <b-form-input
           v-for="inputItem in inputList"
           :key="inputItem.model"
           class="mt-2"
           id="input-1"
           v-model="formData[inputItem.model]"
-          type="text"
+          :type="inputItem.type"
           :placeholder="inputItem.text"
           :disabled="inputItem.disabled"
           required
@@ -39,11 +39,19 @@
         <div class="d-flex justify-content-between">
           <b-button @click="addFormList" variant="primary">下一項</b-button>
           <b-button
-            v-show="typeof formEditIndex !== 'string'"
-            @click="deleteFormList"
+            v-show="!checkString(formEditIndex)"
             variant="danger"
-            >刪除</b-button
+            @click="deleteFormList"
           >
+            刪除
+          </b-button>
+          <b-button
+            v-show="checkString(formEditIndex)"
+            variant="danger"
+            @click="formDataRemove"
+          >
+            清空
+          </b-button>
         </div>
       </b-form>
     </div>
@@ -62,19 +70,32 @@
         </thead>
         <tbody>
           <tr v-for="(formItem, index) in formList" :key="index">
-            <th scope="row" v-for="(item, key) in formItem" :key="`item${key}`">
+            <td scope="row" v-for="(item, key) in formItem" :key="`item${key}`">
               <b-icon
                 v-if="key === 'name'"
                 icon="pencil-square"
                 @click="formEdit(index)"
               />
               {{ item }}
-            </th>
+            </td>
           </tr>
         </tbody>
       </table>
     </div>
-    <b-button class="mt-5" variant="success">確定</b-button>
+    <div class="form-total-wrap d-flex align-items-end flex-column">
+      <p class="mb-0 mt-2">
+        合計 : <span>{{ listTotal }}</span>
+      </p>
+      <p class="mb-0 mt-2">
+        稅金 : <span>{{ listTax }}</span>
+      </p>
+      <p class="mb-0 mt-2">
+        總計 : <span>{{ listTaxIncluded }}</span>
+      </p>
+    </div>
+    <b-button class="mt-5" @click="createPDF" variant="success">
+      生成pdf
+    </b-button>
   </div>
 </template>
 
@@ -84,12 +105,12 @@ export default {
     return {
       titleFormShow: false,
       inputList: [
-        { text: "輸入項目", model: "name" },
-        { text: "輸入規格", model: "criterion" },
-        { text: "輸入數量", model: "number" },
-        { text: "輸入單位", model: "unit" },
-        { text: "輸入單價", model: "price" },
-        { text: "輸入備註", model: "remark" },
+        { text: "輸入項目", model: "name", type: "text" },
+        { text: "輸入規格", model: "criterion", type: "text" },
+        { text: "輸入數量", model: "number", type: "number" },
+        { text: "輸入單位", model: "unit", type: "text" },
+        { text: "輸入單價", model: "price", type: "number" },
+        { text: "輸入備註", model: "remark", type: "text" },
       ],
       formTitle: "",
       formData: {
@@ -109,9 +130,24 @@ export default {
     itemTotal() {
       return this.formData.price * this.formData.number;
     },
+    listTotal() {
+      return this.formList.reduce(
+        (total, item) => (total += item.itemTotal),
+        0
+      );
+    },
+    listTax() {
+      return +(this.listTotal * 0.05).toFixed(2);
+    },
+    listTaxIncluded() {
+      return this.listTotal + this.listTax;
+    },
   },
   mounted() {},
   methods: {
+    checkString(val) {
+      return typeof val === "string";
+    },
     formEdit(index) {
       const vm = this;
       vm.formEditIndex = index;
@@ -137,6 +173,11 @@ export default {
       this.formEditIndex = "";
       this.formDataRemove();
     },
+    createPDF() {
+      const vm = this;
+      if (!vm.formList.length) return;
+      console.log("a");
+    },
   },
 };
 </script>
@@ -160,7 +201,7 @@ export default {
   overflow: auto;
 }
 .table-wrap::-webkit-scrollbar {
-  height: 3px;
+  height: 5px;
 }
 .table-wrap::-webkit-scrollbar-track-piece {
   background-color: #eee;
@@ -168,9 +209,21 @@ export default {
 
 .table-wrap::-webkit-scrollbar-thumb {
   background-color: gray;
+  border-radius: 15px;
 }
 
 .table-DOM {
   width: 750px !important;
+}
+.form-total-wrap {
+  width: 350px;
+}
+.form-total-wrap p {
+  width: 180px;
+}
+.form-total-wrap p span {
+  width: calc(100% - 45px);
+  display: inline-block;
+  text-align: right;
 }
 </style>
