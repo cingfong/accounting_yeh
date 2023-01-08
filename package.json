@@ -2,6 +2,7 @@
   "name": "pdf-table",
   "version": "0.1.0",
   "private": true,
+  "engines": { "node": "~14.20.1" },
   "scripts": {
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
